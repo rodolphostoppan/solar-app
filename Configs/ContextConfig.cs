@@ -9,6 +9,7 @@ public class ContextConfig : DbContext
     public required DbSet<Client> Client { get; set; }
     public required DbSet<Bill> Bill { get; set; }
     public required DbSet<Project> Project { get; set; }
+    public required DbSet<Location> Location { get; set; }
 
     public ContextConfig(DbContextOptions options) : base(options) { }
 
@@ -17,6 +18,7 @@ public class ContextConfig : DbContext
         modelBuilder.ApplyConfiguration(new ClientMap());
         modelBuilder.ApplyConfiguration(new BillMap());
         modelBuilder.ApplyConfiguration(new ProjectMap());
+        modelBuilder.ApplyConfiguration(new LocationMap());
     }
 }
 

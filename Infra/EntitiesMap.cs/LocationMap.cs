@@ -4,15 +4,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace SolarApp.Infra.EntitiesMap;
 
-public class ClientMap : IEntityTypeConfiguration<Client>
+public class LocationMap : IEntityTypeConfiguration<Location>
 {
-    public void Configure(EntityTypeBuilder<Client> builder)
+    public void Configure(EntityTypeBuilder<Location> builder)
     {
         builder.HasKey(prop => prop.Id);
         builder.Property(prop => prop.Id)
             .ValueGeneratedOnAdd();
-
-        builder.HasOne(prop => prop.Location);
     }
 }
 

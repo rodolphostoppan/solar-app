@@ -62,9 +62,9 @@ public class BillService
 
         billResult.UC = bill.UC;
         billResult.Holder = bill.Holder;
-        billResult.State = bill.State;
-        billResult.City = bill.City;
-        billResult.Address = bill.Address;
+        billResult.Location!.State = bill.Location!.State;
+        billResult.Location.City = bill.Location.City;
+        billResult.Location.Address = bill.Location.Address;
         billResult.Amount = bill.Amount;
         billResult.Consumption = bill.Consumption;
         billResult.Project = bill.Project;
