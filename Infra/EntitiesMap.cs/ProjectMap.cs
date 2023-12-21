@@ -16,6 +16,8 @@ public class ProjectMap : IEntityTypeConfiguration<Project>
 
         builder.HasMany(prop => prop.Bills)
             .WithOne(prop => prop.Project);
+
+        builder.HasOne(prop => prop.Location);
     }
 }
 

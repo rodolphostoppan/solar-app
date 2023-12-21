@@ -11,6 +11,7 @@ namespace Db1HealthPanelBack.Configs
             services.AddScoped<BillService>();
             services.AddScoped<ProjectService>();
             services.AddScoped<SizingService>();
+            services.AddScoped<IrradiationService>();
         }
 
         public static void AddCompressionToResponse(this IServiceCollection services)

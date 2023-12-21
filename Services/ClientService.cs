@@ -61,9 +61,9 @@ public class ClientService
         if (clientResult is null) return new NotFoundResult();
 
         clientResult.Name = client.Name;
-        clientResult.State = client.State;
-        clientResult.City = client.City;
-        clientResult.Address = client.Address;
+        clientResult.Location!.State = client.Location!.State;
+        clientResult.Location.City = client.Location.City;
+        clientResult.Location.Address = client.Location.Address;
         clientResult.UpdatedAt = DateTime.Now;
 
         _contextConfig.Update(clientResult);

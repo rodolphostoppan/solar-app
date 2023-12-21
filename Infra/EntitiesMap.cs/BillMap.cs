@@ -14,6 +14,8 @@ public class BillMap : IEntityTypeConfiguration<Bill>
 
         builder.HasOne(prop => prop.Project)
             .WithMany(prop => prop.Bills);
+
+        builder.HasOne(prop => prop.Location);
     }
 }
 

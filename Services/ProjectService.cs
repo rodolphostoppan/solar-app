@@ -27,18 +27,20 @@ public class ProjectService
 
         if (createProject.Bills is null) return new BadRequestResult();
 
+        var irradiation = _sizingService.IrradiationAnnualAverageCalculator(createProject);
+
         var billConsumption = createProject.Bills.Select(prop => prop.Consumption).First();
 
         if (billConsumption != 0)
         {
-            createProject.Generation = Math.Round(_sizingService.SizingConsumption(createProject.Bills, createProject.ModulesPower) / 12, 2);
+            createProject.Generation = Math.Round(_sizingService.SizingByConsumption(createProject.Bills, createProject.ModulesPower, irradiation) / 12, 2);
         }
         else
         {
-            createProject.Generation = Math.Round(_sizingService.SizingAmount(createProject.Bills, createProject.ModulesPower) / 12, 2);
+            createProject.Generation = Math.Round(_sizingService.SizingByAmount(createProject.Bills, createProject.ModulesPower, irradiation) / 12, 2);
         }
 
-        createProject.Modules = _sizingService.NumberModules(createProject.Generation, createProject.ModulesPower);
+        createProject.Modules = _sizingService.NumberModules(createProject.Generation, createProject.ModulesPower, irradiation);
         createProject.Power = _sizingService.SystemPower(createProject.Modules, createProject.ModulesPower);
 
         await _contextConfig.AddAsync(createProject);
