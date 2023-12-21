@@ -1,3 +1,4 @@
+using System.Text;
 using SolarApp.Entities;
 
 namespace SolarApp.Services;
@@ -11,57 +12,60 @@ public class SizingService
         _irradiationService = irradiationService;
     }
 
-    public decimal IrradiationAnnualAverageCalculator(Project project)
+    public decimal CalculateGeneration(Project project, decimal irradiation, int days)
     {
-        var irradiation = _irradiationService.GetCityIrradiation(project);
+        return Math.Round(project.Power * 0.75m * irradiation / 1000 * days, 2);
 
-        return Math.Round(
-            (irradiation.Result!.Jan / 1000 * 31) +
-            (irradiation.Result!.Feb / 1000 * 28) +
-            (irradiation.Result!.Mar / 1000 * 31) +
-            (irradiation.Result!.Apr / 1000 * 30) +
-            (irradiation.Result!.May / 1000 * 31) +
-            (irradiation.Result!.Jun / 1000 * 30) +
-            (irradiation.Result!.Jul / 1000 * 31) +
-            (irradiation.Result!.Aug / 1000 * 30) +
-            (irradiation.Result!.Sep / 1000 * 30) +
-            (irradiation.Result!.Oct / 1000 * 31) +
-            (irradiation.Result!.Nov / 1000 * 30) +
-            (irradiation.Result!.Dec / 1000 * 31),
-            2
-        );
     }
 
-
-    public decimal NumberModules(decimal billConsumption, decimal modulesPower, decimal irradiationAverage)
+    public decimal CalculateAnnualGenerationAverage(Project project)
     {
-        return Math.Round(billConsumption * 12 / (0.75m/*eficiencia*/ * irradiationAverage) * 1000 / modulesPower, 0, MidpointRounding.AwayFromZero);
+        var irradiation = _irradiationService.GetCityIrradiation(project).Result;
+
+        return Math.Round(CalculateGeneration(project, irradiation!.Annual, 365) / 12, 2);
+    }
+
+    public MonthGeneration CalculateMonthGeneration(Project project)
+    {
+        var irradiation = _irradiationService.GetCityIrradiation(project).Result;
+        return new MonthGeneration
+        {
+            Jan = CalculateGeneration(project, irradiation!.Jan, 31),
+            Feb = CalculateGeneration(project, irradiation!.Feb, 28),
+            Mar = CalculateGeneration(project, irradiation!.Mar, 31),
+            Apr = CalculateGeneration(project, irradiation!.Apr, 30),
+            May = CalculateGeneration(project, irradiation!.May, 31),
+            Jun = CalculateGeneration(project, irradiation!.Jun, 30),
+            Jul = CalculateGeneration(project, irradiation!.Jul, 31),
+            Aug = CalculateGeneration(project, irradiation!.Aug, 31),
+            Sep = CalculateGeneration(project, irradiation!.Sep, 30),
+            Oct = CalculateGeneration(project, irradiation!.Oct, 31),
+            Nov = CalculateGeneration(project, irradiation!.Nov, 30),
+            Dec = CalculateGeneration(project, irradiation!.Dec, 31),
+        };
+    }
+
+    public decimal CalculateBillsConsumption(IEnumerable<Bill> bills)
+    {
+        if (bills is not null)
+        {
+            foreach (var bill in bills)
+            {
+                if (bill.Consumption != 0) return Math.Round(bills.Select(bill => bill.Consumption).Sum(), 2);
+                return Math.Round(bills.Select(bill => bill.Amount / bill.Tariff).Sum(), 2);
+            }
+        }
+        return 0;
+    }
+
+    public decimal NumberModules(decimal billConsumption, decimal modulesPower, decimal annualIrradiationAverage)
+    {
+        return Math.Round(billConsumption * 12 / (0.75m/*eficiencia*/ * annualIrradiationAverage / 1000 * 365) * 1000 / modulesPower, 0, MidpointRounding.AwayFromZero);
     }
 
     public decimal SystemPower(decimal numberModules, decimal modulesPower)
     {
         return Math.Round(numberModules * modulesPower / 1000, 2);
     }
-
-    public decimal SizingByConsumption(IEnumerable<Bill> bills, decimal modulesPower, decimal irradiationAverage)
-    {
-        return bills.Select(bill =>
-        {
-            var numberModules = NumberModules(bill.Consumption, modulesPower, irradiationAverage);
-            var systemPower = SystemPower(numberModules, modulesPower);
-            return systemPower * 0.75m * irradiationAverage;
-        }).Sum();
-    }
-
-    public decimal SizingByAmount(IEnumerable<Bill> bills, decimal modulesPower, decimal irradiationAverage)
-    {
-        return bills.Select(bill =>
-        {
-            var numberModules = NumberModules(bill.Amount / bill.Tariff, modulesPower, irradiationAverage);
-            var systemPower = SystemPower(numberModules, modulesPower);
-            return systemPower * 0.75m * irradiationAverage;
-        }).Sum();
-    }
-
 }
 

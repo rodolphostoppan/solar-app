@@ -12,6 +12,7 @@ public class Project
     public decimal ModulesPower { get; set; }
     public int Inverter { get; set; }
     public decimal Generation { get; set; }
+    public MonthGeneration? MonthGeneration { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime UpdatedAt { get; set; }
 

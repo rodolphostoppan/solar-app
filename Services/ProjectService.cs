@@ -10,11 +10,13 @@ public class ProjectService
 {
     private readonly ContextConfig _contextConfig;
     private readonly SizingService _sizingService;
+    private readonly IrradiationService _irradiationService;
 
-    public ProjectService(ContextConfig contextConfig, SizingService sizingService)
+    public ProjectService(ContextConfig contextConfig, SizingService sizingService, IrradiationService irradiationService)
     {
         _contextConfig = contextConfig;
         _sizingService = sizingService;
+        _irradiationService = irradiationService;
     }
 
     public async Task<IActionResult> CreateProject(Project createProject)
@@ -27,21 +29,15 @@ public class ProjectService
 
         if (createProject.Bills is null) return new BadRequestResult();
 
-        var irradiation = _sizingService.IrradiationAnnualAverageCalculator(createProject);
+        var irradiation = _irradiationService.GetCityIrradiation(createProject).Result;
 
-        var billConsumption = createProject.Bills.Select(prop => prop.Consumption).First();
+        var billsConsumption = _sizingService.CalculateBillsConsumption(createProject.Bills);
 
-        if (billConsumption != 0)
-        {
-            createProject.Generation = Math.Round(_sizingService.SizingByConsumption(createProject.Bills, createProject.ModulesPower, irradiation) / 12, 2);
-        }
-        else
-        {
-            createProject.Generation = Math.Round(_sizingService.SizingByAmount(createProject.Bills, createProject.ModulesPower, irradiation) / 12, 2);
-        }
-
-        createProject.Modules = _sizingService.NumberModules(createProject.Generation, createProject.ModulesPower, irradiation);
+        createProject.Modules = _sizingService.NumberModules(billsConsumption, createProject.ModulesPower, irradiation!.Annual);
         createProject.Power = _sizingService.SystemPower(createProject.Modules, createProject.ModulesPower);
+        createProject.Generation = _sizingService.CalculateAnnualGenerationAverage(createProject);
+        createProject.MonthGeneration = _sizingService.CalculateMonthGeneration(createProject);
+
 
         await _contextConfig.AddAsync(createProject);
         await _contextConfig.SaveChangesAsync();

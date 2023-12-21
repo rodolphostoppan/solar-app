@@ -1,4 +1,3 @@
-using System.Text;
 using System.Text.Json;
 using SolarApp.Configs;
 using SolarApp.Entities;
@@ -8,17 +7,27 @@ namespace SolarApp.Services;
 public partial class IrradiationService
 {
     private readonly IConfiguration _configuration;
-    private readonly ContextConfig _contextConfig;
 
-    public IrradiationService(IConfiguration configuration, ContextConfig contextConfig)
+    public IrradiationService(IConfiguration configuration)
     {
         _configuration = configuration;
-        _contextConfig = contextConfig;
     }
 
     static string NormalizeString(string input)
     {
-        return input.Replace("á", "a").Replace("â", "a").Replace("ã", "a").Replace("é", "e").Replace("ê", "e").Replace("í", "i").Replace("ó", "o").Replace("ô", "o").Replace("õ", "o").Replace("ú", "u").Replace(" ", "").Replace(" ' ", "").ToLowerInvariant();
+        return input.Replace("á", "a")
+                    .Replace("â", "a")
+                    .Replace("ã", "a")
+                    .Replace("é", "e")
+                    .Replace("ê", "e")
+                    .Replace("í", "i")
+                    .Replace("ó", "o")
+                    .Replace("ô", "o")
+                    .Replace("õ", "o")
+                    .Replace("ú", "u")
+                    .Replace(" ", "")
+                    .Replace(" ' ", "")
+                    .ToLowerInvariant();
     }
 
     private Task<string> DefineProjectUrlRequest(string billCity)
