@@ -18,6 +18,8 @@ public class ProjectMap : IEntityTypeConfiguration<Project>
             .WithOne(prop => prop.Project);
 
         builder.HasOne(prop => prop.Location);
+
+        builder.Ignore(prop => prop.MonthGeneration);
     }
 }
 
