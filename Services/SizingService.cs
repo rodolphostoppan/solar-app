@@ -49,18 +49,17 @@ public class SizingService
     {
         if (bills is not null)
         {
-            foreach (var bill in bills)
-            {
-                if (bill.Consumption != 0) return Math.Round(bills.Select(bill => bill.Consumption).Sum(), 2);
-                return Math.Round(bills.Select(bill => bill.Amount / bill.Tariff).Sum(), 2);
-            }
+            var billsConsumption = bills.Where(bill => bill.Consumption != 0).Sum(bill => bill.Consumption);
+            var calculatedConsumption = bills.Where(bill => bill.Consumption == 0).Sum(bill => bill.Amount / bill.Tariff);
+
+            return Math.Round(billsConsumption + calculatedConsumption, 2);
         }
         return 0;
     }
 
     public decimal NumberModules(decimal billConsumption, decimal modulesPower, decimal annualIrradiationAverage)
     {
-        return Math.Round(billConsumption * 12 / (0.75m/*eficiencia*/ * annualIrradiationAverage / 1000 * 365) * 1000 / modulesPower, 0, MidpointRounding.AwayFromZero);
+        return Math.Round(billConsumption * 12 / (0.75m/*eficiencia*/ * annualIrradiationAverage / 1000 * 365) * 1000 / modulesPower, 0, MidpointRounding.ToPositiveInfinity);
     }
 
     public decimal SystemPower(decimal numberModules, decimal modulesPower)

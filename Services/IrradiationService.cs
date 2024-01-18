@@ -1,5 +1,5 @@
 using System.Text.Json;
-using SolarApp.Configs;
+using Microsoft.AspNetCore.Mvc;
 using SolarApp.Entities;
 
 namespace SolarApp.Services;
@@ -13,7 +13,7 @@ public partial class IrradiationService
         _configuration = configuration;
     }
 
-    static string NormalizeString(string input)
+    private static string NormalizeString(string input)
     {
         return input.Replace("á", "a")
                     .Replace("â", "a")

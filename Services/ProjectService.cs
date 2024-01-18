@@ -29,7 +29,7 @@ public class ProjectService
 
         if (createProject.Bills is null) return new BadRequestResult();
 
-        var irradiation = _irradiationService.GetCityIrradiation(createProject).Result;
+        var irradiation = await _irradiationService.GetCityIrradiation(createProject);
 
         var billsConsumption = _sizingService.CalculateBillsConsumption(createProject.Bills);
 
@@ -47,7 +47,10 @@ public class ProjectService
 
     public async Task<IActionResult> GetById(Guid projectId)
     {
-        var project = await _contextConfig.Project.FirstOrDefaultAsync(prop => prop.Id == projectId);
+        var project = await _contextConfig.Project.Include(project => project.Client)
+                                                  .Include(project => project.Bills)
+                                                  .Include(project => project.Location)
+                                                  .FirstOrDefaultAsync(prop => prop.Id == projectId);
 
         if (project is null) return new NotFoundResult();
 
@@ -56,7 +59,11 @@ public class ProjectService
 
     public async Task<IEnumerable<Project>> GetAll()
     {
-        var projects = await _contextConfig.Project.OrderBy(prop => prop.Client).ToListAsync();
+        var projects = await _contextConfig.Project.Include(project => project.Client)
+                                                        .ThenInclude(client => client!.Location)
+                                                   .Include(project => project.Bills)
+                                                   .Include(project => project.Location)
+                                                   .ToListAsync();
 
         return projects;
     }
@@ -75,7 +82,10 @@ public class ProjectService
 
     public async Task<IActionResult> Update(Guid projectId, Project project)
     {
-        var projectResult = await _contextConfig.Project.FirstOrDefaultAsync(prop => prop.Id == projectId);
+        var projectResult = await _contextConfig.Project.Include(project => project.Client)
+                                                        .Include(project => project.Bills)
+                                                        .Include(project => project.Location)
+                                                        .FirstOrDefaultAsync(prop => prop.Id == projectId);
 
         if (projectResult is null) return new NotFoundResult();
 
