@@ -9,8 +9,13 @@ namespace SolarApp.Controllers;
 public class ProjectController : ControllerBase
 {
     private readonly ProjectService _projectService;
+    private readonly IrradiationService _irradiationService;
 
-    public ProjectController(ProjectService projectService) => _projectService = projectService;
+    public ProjectController(ProjectService projectService, IrradiationService irradiationService)
+    {
+        _projectService = projectService;
+        _irradiationService = irradiationService;
+    }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Project project) => await _projectService.CreateProject(project);
@@ -26,4 +31,5 @@ public class ProjectController : ControllerBase
 
     [HttpDelete("{projectId:guid}")]
     public async Task<IActionResult> Delete([FromRoute] Guid projectId) => await _projectService.Delete(projectId);
+
 }
